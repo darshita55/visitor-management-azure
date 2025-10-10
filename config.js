@@ -1,46 +1,46 @@
-// Azure Cosmos DB Configuration
+// SECURE VERSION - No real credentials exposed
 const CONFIG = {
-    // Replace these with your actual values from Azure Portal
-    COSMOS_ENDPOINT: 'https://visitor-cosmosdb-darsh.documents.azure.com:443/',
-    COSMOS_KEY: '3JufJwLSFk76hFdfjMmDgvMoNUQUE5PqAwwDbktafv5WIbIcXYWmB65dOueLDxNqlAkjyyyuNx4OACDbuU9kCg==',
+    // Demo configuration - replace with environment variables in production
+    COSMOS_ENDPOINT: 'https://your-cosmos-db.documents.azure.com:443/',
+    COSMOS_KEY: 'KEY_FROM_AZURE_PORTAL', // Not the real key!
     DATABASE_NAME: 'VisitorManagement',
-
+    
     CONTAINERS: {
         VISITORS: 'Visitors',
-        QR_TOKENS: 'QRTokens',
+        QR_TOKENS: 'QRTokens', 
         USERS: 'Users'
     },
-
+    
     COLLEGE_NAME: 'Rajalakshmi Engineering College',
     ADMIN_EMAIL_DOMAIN: '@rajalakshmi.edu.in',
     QR_EXPIRY_HOURS: 48,
     QR_MAX_USES: 2
 };
 
-// Simple database functions using localStorage (for demo)
+// Demo Mode - Using localStorage (secure for student demo)
 class VisitorDB {
     static saveVisitor(visitorData) {
         const visitors = JSON.parse(localStorage.getItem('visitors') || '[]');
         visitors.push(visitorData);
         localStorage.setItem('visitors', JSON.stringify(visitors));
-        console.log('Visitor saved:', visitorData);
+        console.log('✅ Visitor saved (demo mode):', visitorData.name);
     }
-
+    
     static getVisitors() {
         return JSON.parse(localStorage.getItem('visitors') || '[]');
     }
-
+    
     static saveQRToken(tokenData) {
         const tokens = JSON.parse(localStorage.getItem('qrTokens') || '[]');
         tokens.push(tokenData);
         localStorage.setItem('qrTokens', JSON.stringify(tokens));
-        console.log('QR Token saved:', tokenData);
+        console.log('✅ QR Token saved (demo mode):', tokenData.token);
     }
-
+    
     static getQRTokens() {
         return JSON.parse(localStorage.getItem('qrTokens') || '[]');
     }
-
+    
     static findQRToken(token) {
         const tokens = this.getQRTokens();
         return tokens.find(t => t.token === token);
