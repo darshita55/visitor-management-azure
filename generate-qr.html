@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f0f2f5;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #1e3c72;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            background: #218838;
+        }
+
+        .result {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            background: #f8f9fa;
+            display: none;
+        }
+
+        .url-box {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 15px 0;
+            word-break: break-all;
+            font-family: monospace;
+        }
+
+        .links {
+            margin-top: 40px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+
+        .links a {
+            color: #1e3c72;
+            text-decoration: none;
+            margin: 0 20px;
+            font-weight: bold;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🎯 QR Code Generator</h1>
+        <p>Generate secure QR codes for visitor registration<br>Rajalakshmi Engineering College</p>
+
+        <button class="btn" onclick="generateQR()">🔗 Generate QR Code</button>
+
+        <div id="result" class="result">
+            <h3>✅ QR Code Generated!</h3>
+            <img id="qrImage" src="" alt="QR Code" style="max-width: 250px;">
+            <div class="url-box">
+                <strong>Registration URL:</strong><br>
+                <a id="qrLink" href="" target="_blank"></a>
+            </div>
+            <p><strong>Valid for 48 hours • Maximum 2 uses</strong></p>
+            <button class="btn" onclick="copyURL()">📋 Copy URL</button>
+        </div>
+
+        <div class="links">
+            <a href="index.html">← Visitor Registration</a>
+            <a href="admin.html">Admin Dashboard →</a>
+        </div>
+    </div>
+
+    <script>
+        function generateQR() {
+            // Generate unique token
+            const token = Date.now() + '' + Math.floor(Math.random() * 1000);
+
+            // Create URL
+            const baseUrl = window.location.href.replace('generate-qr.html', '');
+            const qrUrl = baseUrl + 'index.html?token=' + token;
+
+            // Store token data
+            const tokenData = {
+                token: token,
+                createdTime: new Date().toISOString(),
+                expiryTime: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
+                usageCount: 0,
+                maxUsage: 2
+            };
+
+            let tokens = JSON.parse(localStorage.getItem('qrTokens') || '[]');
+            tokens.push(tokenData);
+            localStorage.setItem('qrTokens', JSON.stringify(tokens));
+
+            // Update UI
+            document.getElementById('qrImage').src = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' + encodeURIComponent(qrUrl);
+            document.getElementById('qrLink').href = qrUrl;
+            document.getElementById('qrLink').textContent = qrUrl;
+            document.getElementById('result').style.display = 'block';
+
+            console.log('QR Generated:', qrUrl);
+        }
+
+        function copyURL() {
+            const url = document.getElementById('qrLink').textContent;
+            navigator.clipboard.writeText(url).then(function () {
+                alert('URL copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+
+</html>

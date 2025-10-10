@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visitor Registration - Rajalakshmi Engineering College</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            margin: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid #1e3c72;
+        }
+
+        .header h1 {
+            color: #1e3c72;
+            font-size: 2.2em;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #1e3c72;
+            box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #dc3545, #fd7e14);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.3);
+        }
+
+        .message {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .message.success {
+            background: #d1f2eb;
+            color: #00755a;
+            border: 2px solid #28a745;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .links a {
+            color: #1e3c72;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 0 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .links a:hover {
+            color: #2a5298;
+            text-decoration: underline;
+        }
+
+        .qr-status {
+            background: #e3f2fd;
+            border: 1px solid #1976d2;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .qr-status.valid {
+            background: #e8f5e8;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .qr-status.invalid {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, .3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Visitor Registration</h1>
+            <p>Rajalakshmi Engineering College</p>
+        </div>
+
+        <div id="qrStatus" class="qr-status">
+            <p id="qrStatusMessage">Checking QR code validity...</p>
+        </div>
+
+        <form id="visitorForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">Full Name *</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="phone">Phone Number *</label>
+                    <input type="tel" id="phone" name="phone" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="company">Company/Organization</label>
+                    <input type="text" id="company" name="company">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="purpose">Purpose of Visit *</label>
+                <select id="purpose" name="purpose" required>
+                    <option value="">Select Purpose</option>
+                    <option value="Business Meeting">Business Meeting</option>
+                    <option value="Interview">Interview</option>
+                    <option value="Academic Collaboration">Academic Collaboration</option>
+                    <option value="Campus Tour">Campus Tour</option>
+                    <option value="Event Attendance">Event Attendance</option>
+                    <option value="Training/Workshop">Training/Workshop</option>
+                    <option value="Vendor Meeting">Vendor Meeting</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="hostName">Host Name (Person you're visiting)</label>
+                <input type="text" id="hostName" name="hostName" placeholder="Enter host's name">
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary" id="checkinBtn">
+                    <span id="checkinText">Check In</span>
+                    <div id="checkinLoader" class="loading" style="display: none;"></div>
+                </button>
+                <button type="button" class="btn btn-secondary" id="checkoutBtn">
+                    <span id="checkoutText">Check Out</span>
+                    <div id="checkoutLoader" class="loading" style="display: none;"></div>
+                </button>
+            </div>
+        </form>
+
+        <div id="message" class="message"></div>
+
+        <div class="links">
+            <a href="admin.html">Admin Login</a>
+            <a href="generate-qr.html">Generate QR Code</a>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        // Simple visitor management system for demo (localStorage-based)
+        class VisitorRegistration {
+            constructor() {
+                this.qrToken = this.getTokenFromUrl();
+                this.init();
+            }
+
+            getTokenFromUrl() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('token');
+            }
+
+            init() {
+                this.validateQRToken();
+                this.setupEventListeners();
+                this.loadVisitorData();
+            }
+
+            validateQRToken() {
+                const statusDiv = document.getElementById('qrStatus');
+                const statusMessage = document.getElementById('qrStatusMessage');
+
+                if (!this.qrToken) {
+                    statusDiv.className = 'qr-status invalid';
+                    statusMessage.textContent = 'No QR token found. Please scan a valid QR code to access this form.';
+                    document.getElementById('visitorForm').style.display = 'none';
+                    return false;
+                }
+
+                // Check if token exists and is valid (demo with localStorage)
+                const tokens = JSON.parse(localStorage.getItem('qrTokens') || '[]');
+                const tokenData = tokens.find(t => t.token === this.qrToken);
+
+                if (!tokenData) {
+                    statusDiv.className = 'qr-status invalid';
+                    statusMessage.textContent = 'Invalid QR token. Please contact reception for a new QR code.';
+                    document.getElementById('visitorForm').style.display = 'none';
+                    return false;
+                }
+
+                if (new Date() > new Date(tokenData.expiryTime)) {
+                    statusDiv.className = 'qr-status invalid';
+                    statusMessage.textContent = 'QR code has expired. Please contact reception for a new QR code.';
+                    document.getElementById('visitorForm').style.display = 'none';
+                    return false;
+                }
+
+                if (tokenData.usageCount >= tokenData.maxUsage) {
+                    statusDiv.className = 'qr-status invalid';
+                    statusMessage.textContent = 'QR code usage limit reached. Please contact reception if you need assistance.';
+                    document.getElementById('visitorForm').style.display = 'none';
+                    return false;
+                }
+
+                statusDiv.className = 'qr-status valid';
+                statusMessage.textContent = `✓ Valid QR code. Expires: ${new Date(tokenData.expiryTime).toLocaleString()}`;
+                return true;
+            }
+
+            setupEventListeners() {
+                const form = document.getElementById('visitorForm');
+                const checkinBtn = document.getElementById('checkinBtn');
+                const checkoutBtn = document.getElementById('checkoutBtn');
+
+                form.addEventListener('submit', (e) => this.handleCheckin(e));
+                checkoutBtn.addEventListener('click', () => this.handleCheckout());
+            }
+
+            loadVisitorData() {
+                // Check if visitor is already registered with this token
+                const visitors = JSON.parse(localStorage.getItem('visitors') || '[]');
+                const existingVisitor = visitors.find(v => v.qrToken === this.qrToken);
+
+                if (existingVisitor) {
+                    // Pre-fill form with existing data
+                    document.getElementById('name').value = existingVisitor.name || '';
+                    document.getElementById('email').value = existingVisitor.email || '';
+                    document.getElementById('phone').value = existingVisitor.phone || '';
+                    document.getElementById('company').value = existingVisitor.company || '';
+                    document.getElementById('purpose').value = existingVisitor.purpose || '';
+                    document.getElementById('hostName').value = existingVisitor.hostName || '';
+
+                    // Update button states based on status
+                    if (existingVisitor.status === 'checked-in') {
+                        document.getElementById('checkinBtn').style.display = 'none';
+                        this.showMessage('You are currently checked in. Use the check-out button when leaving.', 'success');
+                    }
+                }
+            }
+
+            async handleCheckin(e) {
+                e.preventDefault();
+
+                if (!this.validateQRToken()) return;
+
+                const checkinBtn = document.getElementById('checkinBtn');
+                const checkinText = document.getElementById('checkinText');
+                const checkinLoader = document.getElementById('checkinLoader');
+
+                // Show loading
+                checkinText.style.display = 'none';
+                checkinLoader.style.display = 'inline-block';
+                checkinBtn.disabled = true;
+
+                try {
+                    const formData = new FormData(e.target);
+                    const visitorData = {
+                        id: this.generateId(),
+                        qrToken: this.qrToken,
+                        name: formData.get('name'),
+                        email: formData.get('email'),
+                        phone: formData.get('phone'),
+                        company: formData.get('company') || '',
+                        purpose: formData.get('purpose'),
+                        hostName: formData.get('hostName') || '',
+                        checkInTime: new Date().toISOString(),
+                        checkOutTime: null,
+                        status: 'checked-in'
+                    };
+
+                    // Save visitor data
+                    let visitors = JSON.parse(localStorage.getItem('visitors') || '[]');
+
+                    // Remove any existing record with same token
+                    visitors = visitors.filter(v => v.qrToken !== this.qrToken);
+
+                    // Add new record
+                    visitors.push(visitorData);
+                    localStorage.setItem('visitors', JSON.stringify(visitors));
+
+                    // Update QR token usage
+                    this.updateQRTokenUsage();
+
+                    this.showMessage('✓ Check-in successful! Welcome to Rajalakshmi Engineering College.', 'success');
+
+                    // Hide check-in button
+                    checkinBtn.style.display = 'none';
+
+                    // Send email confirmation (simulated)
+                    console.log('Email confirmation sent to:', visitorData.email);
+
+                } catch (error) {
+                    console.error('Check-in error:', error);
+                    this.showMessage('Check-in failed. Please try again.', 'error');
+                } finally {
+                    // Hide loading
+                    checkinText.style.display = 'inline';
+                    checkinLoader.style.display = 'none';
+                    checkinBtn.disabled = false;
+                }
+            }
+
+            async handleCheckout() {
+                if (!this.validateQRToken()) return;
+
+                const checkoutBtn = document.getElementById('checkoutBtn');
+                const checkoutText = document.getElementById('checkoutText');
+                const checkoutLoader = document.getElementById('checkoutLoader');
+
+                if (!confirm('Are you sure you want to check out?')) return;
+
+                // Show loading
+                checkoutText.style.display = 'none';
+                checkoutLoader.style.display = 'inline-block';
+                checkoutBtn.disabled = true;
+
+                try {
+                    let visitors = JSON.parse(localStorage.getItem('visitors') || '[]');
+                    const visitorIndex = visitors.findIndex(v => v.qrToken === this.qrToken && v.status === 'checked-in');
+
+                    if (visitorIndex === -1) {
+                        this.showMessage('No active check-in found for this QR code.', 'error');
+                        return;
+                    }
+
+                    // Update visitor record
+                    visitors[visitorIndex].checkOutTime = new Date().toISOString();
+                    visitors[visitorIndex].status = 'checked-out';
+                    localStorage.setItem('visitors', JSON.stringify(visitors));
+
+                    // Update QR token usage
+                    this.updateQRTokenUsage();
+
+                    this.showMessage('✓ Check-out successful! Thank you for visiting Rajalakshmi Engineering College.', 'success');
+
+                    // Hide form after checkout
+                    document.getElementById('visitorForm').style.display = 'none';
+
+                } catch (error) {
+                    console.error('Check-out error:', error);
+                    this.showMessage('Check-out failed. Please try again.', 'error');
+                } finally {
+                    // Hide loading
+                    checkoutText.style.display = 'inline';
+                    checkoutLoader.style.display = 'none';
+                    checkoutBtn.disabled = false;
+                }
+            }
+
+            updateQRTokenUsage() {
+                let tokens = JSON.parse(localStorage.getItem('qrTokens') || '[]');
+                const tokenIndex = tokens.findIndex(t => t.token === this.qrToken);
+
+                if (tokenIndex !== -1) {
+                    tokens[tokenIndex].usageCount += 1;
+                    tokens[tokenIndex].lastUsed = new Date().toISOString();
+                    localStorage.setItem('qrTokens', JSON.stringify(tokens));
+                }
+            }
+
+            generateId() {
+                return Date.now().toString() + Math.random().toString(36).substr(2, 9);
+            }
+
+            showMessage(message, type) {
+                const messageDiv = document.getElementById('message');
+                messageDiv.textContent = message;
+                messageDiv.className = `message ${type}`;
+                messageDiv.style.display = 'block';
+
+                // Auto-hide after 10 seconds
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 10000);
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new VisitorRegistration();
+        });
+    </script>
+</body>
+
+</html>
