@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: visitor-management
+  labels:
+    app: visitor-management
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: visitor-management
+  template:
+    metadata:
+      labels:
+        app: visitor-management
+    spec:
+      containers:
+      - name: visitor-app
+        image: visitoracr2025.azurecr.io/visitor-management:latest
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: visitor-management-service
+spec:
+  selector:
+    app: visitor-management
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: visitor-config
+data:
+  college-name: "Rajalakshmi Engineering College"
+  max-visitors: "100"
+  qr-expiry-hours: "48"
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: visitor-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: visitor-management
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
